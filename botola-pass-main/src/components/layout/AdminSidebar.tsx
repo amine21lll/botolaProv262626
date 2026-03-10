@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Users, 
@@ -11,6 +11,7 @@ import {
   Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -23,6 +24,13 @@ const NAV_ITEMS = [
 
 export default function AdminSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/admin/login");
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 glass-strong border-r border-border z-50 flex flex-col">
@@ -60,7 +68,10 @@ export default function AdminSidebar() {
       </nav>
 
       <div className="p-4 border-t border-border mt-auto">
-        <button className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300"
+        >
           <LogOut className="w-4 h-4" />
           <span className="font-heading text-sm">Déconnexion</span>
         </button>

@@ -9,7 +9,13 @@ import Home from "./pages/Home";
 import Matches from "./pages/Matches";
 import Reservation from "./pages/Reservation";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import UserProfile from "./pages/UserProfile";
+import Stadiums from "./pages/Stadiums";
+import StadiumDetail from "./pages/StadiumDetail";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 // Admin Imports
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -24,7 +30,7 @@ const queryClient = new QueryClient();
 
 function Layout() {
   const location = useLocation();
-  const hideLayout = location.pathname === "/login" || location.pathname.startsWith("/admin");
+  const hideLayout = ["/login", "/register", "/admin/login"].includes(location.pathname) || (location.pathname.startsWith("/admin") && location.pathname !== "/admin/login");
 
   return (
     <>
@@ -32,12 +38,39 @@ function Layout() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/matches" element={<Matches />} />
-        <Route path="/reservation/:matchId" element={<Reservation />} />
+        <Route 
+          path="/reservation/:matchId" 
+          element={
+            <ProtectedRoute>
+              <Reservation />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/stadiums" element={<Stadiums />} />
+        <Route path="/stadiums/:stadiumId" element={<StadiumDetail />} />
         <Route path="/classement" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          } 
+        />
+
         {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute requireAdmin>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="teams" element={<TeamsManagement />} />
           <Route path="stadiums" element={<StadiumsManagement />} />
@@ -58,9 +91,11 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Layout />
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

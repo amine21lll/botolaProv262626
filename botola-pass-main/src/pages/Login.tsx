@@ -1,30 +1,33 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Lock, Mail, Shield, User } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import botolaLogo from "@/assets/botola-logo.png";
 
 type LoginMode = "user" | "admin";
 
 export default function Login() {
-  const [mode, setMode] = useState<LoginMode>("user");
+  const location = useLocation();
+  const [mode, setMode] = useState<LoginMode>(location.pathname === "/admin/login" ? "admin" : "user");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
   const navigate = useNavigate();
+  const { login, isLoading } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const from = location.state?.from?.pathname || (mode === "admin" ? "/admin" : "/");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    // Simulation login
-    setTimeout(() => {
-      setLoading(false);
-      if (mode === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
-    }, 1500);
+    setLocalError("");
+    
+    try {
+      await login(email, password, mode === "admin" ? "ADMIN" : "USER");
+      navigate(from, { replace: true });
+    } catch (err) {
+      setLocalError("Adresse email ou mot de passe incorrect");
+    }
   };
 
   return (
@@ -35,71 +38,65 @@ export default function Login() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        {/* Logo */}
         <div className="text-center mb-8">
-          <img src={botolaLogo} alt="Botola Pro" className="h-16 w-auto mx-auto mb-4" />
+          <Link to="/">
+            <img src={botolaLogo} alt="Botola Pro" className="h-16 w-auto mx-auto mb-4" />
+          </Link>
           <h1 className="font-display text-3xl text-foreground tracking-wide">
             BOTOLA <span className="text-primary">TICKET</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-2 font-heading">
-            Connectez-vous a votre espace
+          <p className="text-sm text-muted-foreground mt-2 font-heading font-medium">
+            Connectez-vous à votre espace <span className="text-foreground italic">{mode === "admin" ? "Admin" : "Supporter"}</span>
           </p>
         </div>
 
-        {/* Mode Toggle */}
-        <div className="flex rounded-xl bg-muted p-1 mb-6">
+        <div className="flex rounded-xl bg-muted p-1 mb-6 border border-border/50">
           <button
             onClick={() => setMode("user")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-heading font-semibold transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[10px] font-heading font-bold uppercase tracking-wider transition-all duration-300 ${
               mode === "user"
-                ? "bg-card text-foreground shadow-sm"
+                ? "bg-card text-foreground shadow-xl border border-border/50"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <User className="w-4 h-4" />
-            Utilisateur
+            <User className="w-3.5 h-3.5" />
+            Supporter
           </button>
           <button
             onClick={() => setMode("admin")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-heading font-semibold transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[10px] font-heading font-bold uppercase tracking-wider transition-all duration-300 ${
               mode === "admin"
-                ? "bg-card text-foreground shadow-sm"
+                ? "bg-card text-foreground shadow-xl border border-border/50"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Shield className="w-4 h-4" />
-            Administrateur
+            <Shield className="w-3.5 h-3.5" />
+            Admin
           </button>
         </div>
 
-        {/* Form */}
         <motion.div
           key={mode}
           initial={{ opacity: 0, x: mode === "admin" ? 20 : -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-          className="glass p-6"
-          style={{ boxShadow: "var(--shadow-card)" }}
+          className="glass p-8 relative overflow-hidden"
         >
-          <div className="flex items-center gap-2 mb-6">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              mode === "admin" ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"
-            }`}>
-              {mode === "admin" ? <Shield className="w-5 h-5" /> : <User className="w-5 h-5" />}
+          {mode === "admin" && (
+            <div className="absolute top-0 right-0 p-3 opacity-20 rotate-12">
+              <Shield className="w-16 h-16 text-accent" />
             </div>
-            <div>
-              <h2 className="font-heading font-bold text-foreground text-lg">
-                {mode === "admin" ? "Espace Admin" : "Espace Utilisateur"}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {mode === "admin" ? "Gerez la plateforme Botola Ticket" : "Accedez a vos billets et reservations"}
-              </p>
-            </div>
-          </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {localError && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-xs font-heading">
+                {localError}
+              </div>
+            )}
+
             <div>
-              <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block font-heading">
+              <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5 block font-bold">
                 Adresse email
               </label>
               <div className="relative">
@@ -108,15 +105,15 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-muted rounded-lg pl-10 pr-4 py-3 text-foreground text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                  placeholder={mode === "admin" ? "admin@botola.ma" : "email@exemple.com"}
+                  className="w-full bg-muted border border-border/50 rounded-lg pl-10 pr-4 py-3 text-foreground text-sm outline-none focus:ring-2 focus:ring-primary transition-all font-heading"
+                  placeholder={mode === "admin" ? "admin@botola.ma" : "votre@email.com"}
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block font-heading">
+              <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1.5 block font-bold">
                 Mot de passe
               </label>
               <div className="relative">
@@ -125,36 +122,35 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-muted rounded-lg pl-10 pr-4 py-3 text-foreground text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                  placeholder="Votre mot de passe"
+                  className="w-full bg-muted border border-border/50 rounded-lg pl-10 pr-4 py-3 text-foreground text-sm outline-none focus:ring-2 focus:ring-primary transition-all font-heading"
+                  placeholder="••••••••"
                   required
                 />
               </div>
             </div>
 
             {mode === "user" && (
-              <div className="flex items-center justify-between text-xs">
-                <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
+              <div className="flex items-center justify-between text-[10px]">
+                <label className="flex items-center gap-2 text-muted-foreground cursor-pointer font-bold uppercase tracking-wider">
                   <input type="checkbox" className="rounded border-border accent-primary" />
-                  Se souvenir de moi
+                  Rester connecté
                 </label>
-                <button type="button" className="text-primary hover:underline font-medium">
-                  Mot de passe oublie ?
+                <button type="button" className="text-primary hover:underline font-bold uppercase tracking-wider">
+                  Oublié ?
                 </button>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
-              className={`w-full py-3 rounded-lg font-heading font-bold text-sm uppercase tracking-wider transition-all duration-300 disabled:opacity-60 ${
+              disabled={isLoading}
+              className={`w-full py-3.5 rounded-lg font-display font-bold text-xs uppercase tracking-[0.2em] transition-all duration-300 disabled:opacity-60 ${
                 mode === "admin"
-                  ? "bg-accent text-accent-foreground hover:opacity-90"
+                  ? "bg-accent text-white hover:opacity-90 shadow-lg shadow-accent/20"
                   : "btn-neon"
               }`}
-              style={mode === "admin" ? { boxShadow: "0 4px 16px hsl(348 85% 55% / 0.25)" } : undefined}
             >
-              {loading ? (
+              {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <motion.span animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
                   Connexion...
@@ -165,19 +161,17 @@ export default function Login() {
             </button>
           </form>
 
-          {mode === "user" && (
-            <p className="text-center text-xs text-muted-foreground mt-6">
+          {mode === "user" ? (
+            <p className="text-center text-xs text-muted-foreground mt-8 font-heading">
               Pas encore de compte ?{" "}
-              <button className="text-primary font-semibold hover:underline">
-                Creer un compte
-              </button>
+              <Link to="/register" className="text-primary font-bold hover:underline">
+                Rejoignez-nous
+              </Link>
             </p>
-          )}
-
-          {mode === "admin" && (
-            <div className="mt-4 p-3 rounded-lg bg-accent/5 border border-accent/10">
-              <p className="text-[11px] text-muted-foreground text-center">
-                Acces reserve aux administrateurs autorises de la plateforme Botola Ticket.
+          ) : (
+            <div className="mt-8 p-3 rounded-lg bg-accent/5 border border-accent/10">
+              <p className="text-[10px] text-muted-foreground text-center font-heading">
+                Accès réservé aux administrateurs autorisés.
               </p>
             </div>
           )}
