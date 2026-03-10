@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 152 100% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 213 76% 51%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 93%;
+    --muted-foreground: 220 10% 46%;
+
+    --accent: 348 85% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 348 85% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 87%;
+    --input: 220 13% 91%;
+    --ring: 152 100% 32%;
+
+    --radius: 0.75rem;
+
+    --gold: 43 90% 48%;
+    --gold-foreground: 0 0% 100%;
+
+    --surface: 220 15% 95%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 15% 30%;
+    --sidebar-primary: 152 100% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 95%;
+    --sidebar-accent-foreground: 220 25% 10%;
+    --sidebar-border: 220 13% 90%;
+    --sidebar-ring: 152 100% 32%;
+
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-soft: 0 2px 16px rgba(0,0,0,0.06);
+    --shadow-card: 0 4px 24px rgba(0,0,0,0.07);
+    --shadow-elevated: 0 12px 40px rgba(0,0,0,0.10);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-card border border-border rounded-xl;
+    box-shadow: var(--shadow-card);
+  }
+
+  .glass-strong {
+    @apply bg-card/95 backdrop-blur-sm border border-border rounded-xl;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .text-display {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+
+  .text-mono {
+    font-family: var(--font-mono);
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary to-secondary;
+  }
+
+  .gradient-hero {
+    background: radial-gradient(ellipse at 50% 0%, hsl(152 100% 32% / 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, hsl(213 76% 51% / 0.04) 0%, transparent 50%),
+                hsl(var(--background));
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+  }
+
+  .badge-live {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest;
+    background: hsl(152 100% 32% / 0.08);
+    border: 1px solid hsl(152 100% 32% / 0.2);
+    color: hsl(var(--primary));
+  }
+
+  .badge-gold {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase;
+    background: hsl(var(--gold) / 0.1);
+    border: 1px solid hsl(var(--gold) / 0.2);
+    color: hsl(var(--gold));
+  }
+
+  .btn-neon {
+    @apply relative px-8 py-3 rounded-lg font-heading font-bold text-sm uppercase tracking-wider;
+    @apply bg-primary text-primary-foreground;
+    @apply transition-all duration-300;
+    box-shadow: 0 4px 16px hsl(152 100% 32% / 0.25);
+  }
+  .btn-neon:hover {
+    box-shadow: 0 6px 24px hsl(152 100% 32% / 0.35);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-neon {
+    @apply relative px-8 py-3 rounded-lg font-heading font-bold text-sm uppercase tracking-wider;
+    @apply bg-transparent text-primary border border-primary/30;
+    @apply transition-all duration-300;
+  }
+  .btn-outline-neon:hover {
+    @apply bg-primary/5 border-primary/50;
+  }
+
+  .stat-card {
+    @apply glass px-6 py-4 text-center;
+  }
+
+  .section-tag {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-4;
+    background: hsl(152 100% 32% / 0.06);
+    color: hsl(var(--primary));
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
