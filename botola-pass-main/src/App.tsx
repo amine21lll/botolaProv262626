@@ -15,6 +15,7 @@ import Stadiums from "./pages/Stadiums";
 import StadiumDetail from "./pages/StadiumDetail";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "@/context/AuthContext";
+import { DataProvider } from "@/context/DataContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 // Admin Imports
@@ -91,11 +92,13 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <BrowserRouter>
-          <Layout />
-        </BrowserRouter>
-      </AuthProvider>
+      <DataProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Layout />
+          </BrowserRouter>
+        </AuthProvider>
+      </DataProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
